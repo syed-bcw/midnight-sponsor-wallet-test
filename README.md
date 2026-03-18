@@ -71,3 +71,78 @@ npm run dev
       at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/TransactionOps.js:43:51
 }
 ```
+
+# try01
+```bash
+ npm run dev
+
+> sponsor-wallet-test@1.0.0 dev
+> node --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts
+
+(node:1131221) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1131221) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[1/6] Initializing wallets...
+[2/6] Sponsor sending Night to user...
+2026-03-18 11:33:33        RPC-CORE: submitAndWatchExtrinsic(extrinsic: Extrinsic): ExtrinsicStatus:: 1010: Invalid Transaction: Custom error: 139
+2026-03-18 11:33:33        RPC-CORE: submitAndWatchExtrinsic(extrinsic: Extrinsic): ExtrinsicStatus:: 1010: Invalid Transaction: Custom error: 139
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+Wallet.SubmissionWalletError: Transaction submission error: Transaction submission failed
+    at Object.submission (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-shielded/dist/v1/WalletError.js:41:16)
+    at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-shielded/dist/v1/Submission.js:28:275
+    at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/core.js:520:33
+    at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/fiberRuntime.js:945:41 {
+  name: '(FiberFailure) Wallet.SubmissionWalletError',
+  [Symbol(effect/Runtime/FiberFailure)]: Symbol(effect/Runtime/FiberFailure),
+  [Symbol(effect/Runtime/FiberFailure/Cause)]: {
+    _tag: 'Fail',
+    error: SubmissionError [Wallet.SubmissionWalletError]: Transaction submission error: Transaction submission failed
+        at Object.submission (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-shielded/dist/v1/WalletError.js:41:16)
+        at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-shielded/dist/v1/Submission.js:28:275
+        at EffectPrimitive.effect_instruction_i0 (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/core.js:520:33)
+        at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/fiberRuntime.js:945:41
+        at effect_internal_function (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/Utils.js:333:12)
+        at FiberRuntime.Sync (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/fiberRuntime.js:945:19)
+        at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/fiberRuntime.js:1151:31
+        at Object.context (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/tracer.js:80:17)
+        at FiberRuntime.runLoop (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/fiberRuntime.js:1142:34)
+        at FiberRuntime.evaluateEffect (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/internal/fiberRuntime.js:746:27) {
+      _tag: 'Wallet.SubmissionWalletError',
+      [cause]: SubmissionError: Transaction submission failed
+          at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-node-client/dist/effect/PolkadotNodeClient.js:69:27
+          at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+        txData: Uint8Array(3816) [
+          109, 105, 100, 110, 105, 103, 104, 116,  58, 116, 114,  97,
+          110, 115,  97,  99, 116, 105, 111, 110,  91, 118,  57,  93,
+           40, 115, 105, 103, 110,  97, 116, 117, 114, 101,  91, 118,
+           49,  93,  44, 112, 114, 111, 111, 102,  44, 112, 101, 100,
+          101, 114, 115, 101, 110,  45, 115,  99, 104, 110, 111, 114,
+          114,  91, 118,  49,  93,  41,  58, 108,   0,   8, 212, 180,
+            0, 177,  46,  15,   1, 192, 110,  49, 217,  16,   1, 115,
+          141,   2,  77,  34, 255,  59,  82,  92, 197,  90,  21,  69,
+          117, 199, 183, 121,
+          ... 3716 more items
+        ],
+        _tag: 'SubmissionError',
+        [cause]: RpcError: 1010: Invalid Transaction: Custom error: 139
+            at checkError (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@polkadot/rpc-provider/coder/index.js:19:15)
+            at RpcCoder.decodeResponse (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@polkadot/rpc-provider/coder/index.js:35:9)
+            at #onSocketMessageResult (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@polkadot/rpc-provider/ws/index.js:429:40)
+            at #onSocketMessage (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@polkadot/rpc-provider/ws/index.js:418:42)
+            at [nodejs.internal.kHybridDispatch] (node:internal/event_target:845:20)
+            at WebSocket.dispatchEvent (node:internal/event_target:778:26)
+            at fireEvent (node:internal/deps/undici/undici:11855:14)
+            at websocketMessageReceived (node:internal/deps/undici/undici:11877:7)
+            at ByteParser.run (node:internal/deps/undici/undici:12499:19)
+            at ByteParser._write (node:internal/deps/undici/undici:12392:14)
+      }
+    }
+  }
+}
+
+```
