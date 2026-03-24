@@ -32,6 +32,30 @@ node dist/index.js
 npm run dev
 ```
 
+## Full Local Preprod Stack (Docker)
+
+Start Postgres + Cardano node + Cardano db-sync + Midnight node in one command:
+
+```bash
+./run-complete-preprod-stack.sh up
+```
+
+Other commands:
+
+```bash
+./run-complete-preprod-stack.sh status
+./run-complete-preprod-stack.sh logs
+./run-complete-preprod-stack.sh progress
+./run-complete-preprod-stack.sh wait-ready
+./run-complete-preprod-stack.sh down
+```
+
+Notes:
+- First startup can take a long time because `cardano-db-sync` starts from genesis.
+- While db-sync catches up, Midnight may log `Main chain state ... not found`.
+- Once db-sync has advanced enough, Midnight can verify/import preprod blocks.
+- Optional snapshot restore: set `RESTORE_SNAPSHOT=<url>` before `up`.
+
 ## Run Log
 ```bash
 npm run dev
