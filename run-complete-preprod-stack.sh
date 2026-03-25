@@ -25,7 +25,16 @@ READY_POLL_SECONDS="${READY_POLL_SECONDS:-15}"
 FOLLOW_LOGS="${FOLLOW_LOGS:-true}"
 RESTORE_SNAPSHOT="${RESTORE_SNAPSHOT:-}"
 
+MIDNIGHT_RPC_HOST="${MIDNIGHT_RPC_HOST:-127.0.0.1}"
+MIDNIGHT_RPC_PORT="${MIDNIGHT_RPC_PORT:-9944}"
+EXPOSE_MIDNIGHT_P2P="${EXPOSE_MIDNIGHT_P2P:-true}"
+
 MIDNIGHT_DB_CONN="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_CONTAINER}:${POSTGRES_PORT}/${POSTGRES_DB}"
+
+MIDNIGHT_BOOTNODES_DEFAULT=(
+  "/dns/bootnode-1.preprod.midnight.network/tcp/30333/ws/p2p/12D3KooWQxxUgq7ndPfAaCFNbAxtcKYxrAzTxDfRGNktF75SxdX5"
+  "/dns/bootnode-2.preprod.midnight.network/tcp/30333/ws/p2p/12D3KooWNrUBs22FfmgjqFMa9ZqKED2jnxwsXWw5E4q2XVwN35TJ"
+)
 
 usage() {
   cat <<'EOF'
@@ -42,6 +51,9 @@ Environment knobs:
   READY_TIMEOUT_SECONDS=7200
   READY_POLL_SECONDS=15
   RESTORE_SNAPSHOT=https://.../snapshot.tar.zst
+  MIDNIGHT_RPC_HOST=127.0.0.1
+  MIDNIGHT_RPC_PORT=9944
+  EXPOSE_MIDNIGHT_P2P=true|false
 EOF
 }
 
@@ -96,6 +108,18 @@ print_progress() {
   echo "db-sync(max_block,max_slot)=${db_tip:-unknown} | midnight(best_block)=$midnight_best"
 }
 
+get_dbsync_max_slot() {
+  docker exec "$POSTGRES_CONTAINER" psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select coalesce(max(slot_no),0) from block;" 2>/dev/null | tr -d '[:space:]' || echo "0"
+}
+
+get_midnight_required_mainchain_slot() {
+  # Example log substring:
+  # referenced in imported block at slot 295671834 with timestamp ...
+  docker logs --tail 500 "$MIDNIGHT_CONTAINER" 2>/dev/null \
+    | sed -n 's/.*referenced in imported block at slot \([0-9][0-9]*\) .*/\1/p' \
+    | tail -n 1
+}
+
 wait_for_midnight_ready() {
   local deadline=$((SECONDS + READY_TIMEOUT_SECONDS))
   echo "Waiting for Midnight readiness (best block > 0)..."
@@ -103,6 +127,22 @@ wait_for_midnight_ready() {
     require_container_running "$MIDNIGHT_CONTAINER" || return 1
     require_container_running "$DBSYNC_CONTAINER" || return 1
     print_progress
+
+    # If Midnight is failing with "Main chain state ... not found", show how far behind db-sync is.
+    local required_slot
+    required_slot="$(get_midnight_required_mainchain_slot || true)"
+    if [[ -n "$required_slot" ]]; then
+      local db_slot
+      db_slot="$(get_dbsync_max_slot || true)"
+      if [[ -n "$db_slot" ]]; then
+        if [[ "$db_slot" -lt "$required_slot" ]]; then
+          echo "mainchain-slot(required=${required_slot}, dbsync_max=${db_slot}, behind=$((required_slot - db_slot)))"
+        else
+          echo "mainchain-slot(required=${required_slot}, dbsync_max=${db_slot}, behind=0)"
+        fi
+      fi
+    fi
+
     local midnight_best
     midnight_best="$(docker logs --tail 160 "$MIDNIGHT_CONTAINER" 2>/dev/null | sed -n 's/.*best: #\([0-9][0-9]*\).*/\1/p' | tail -n 1)"
     if [[ -n "$midnight_best" && "$midnight_best" -gt 0 ]]; then
@@ -170,7 +210,8 @@ start_stack() {
   docker run -d \
     --name "$MIDNIGHT_CONTAINER" \
     --network "$NETWORK_NAME" \
-    -p 9944:9944 -p 30333:30333 \
+    -p "${MIDNIGHT_RPC_HOST}:${MIDNIGHT_RPC_PORT}:9944" \
+    $( [[ "$EXPOSE_MIDNIGHT_P2P" == "true" ]] && printf -- "-p 30333:30333" ) \
     -v midnight-data:/node \
     -e DB_SYNC_POSTGRES_CONNECTION_STRING="$MIDNIGHT_DB_CONN" \
     -e ALLOW_NON_SSL=true \
@@ -180,7 +221,9 @@ start_stack() {
     --chain=/res/preprod/chain-spec-raw.json \
     --rpc-methods=Safe \
     --rpc-cors=all \
-    --rpc-external >/dev/null
+    --rpc-external \
+    --no-private-ip \
+    $(printf -- '--bootnodes %q ' "${MIDNIGHT_BOOTNODES_DEFAULT[@]}") >/dev/null
 
   echo "Stack started:"
   echo "  postgres      : $POSTGRES_CONTAINER"

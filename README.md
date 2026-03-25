@@ -32,6 +32,10 @@ node dist/index.js
 npm run dev
 ```
 
+## Undeployed network (local)
+
+`src/index.ts` uses `UndeployedConfig()` by default. That sets `setNetworkId('undeployed')` so unshielded addresses use HRP `mn_addr_undeployed` (required by the unshielded wallet). Point `indexer` / `node` in `src/config.ts` at your local indexer and RPC (defaults: `127.0.0.1:8088`, `127.0.0.1:9944`). For public preprod, switch to `PreprodConfig()` in `src/index.ts`.
+
 ## Full Local Preprod Stack (Docker)
 
 Start Postgres + Cardano node + Cardano db-sync + Midnight node in one command:

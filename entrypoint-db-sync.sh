@@ -1,0 +1,1 @@
+/nix/store/vq9znm62dfjz2cm7cac513vjfriwpfgz-entrypoint/bin/entrypoint

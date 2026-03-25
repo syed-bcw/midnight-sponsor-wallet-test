@@ -3,7 +3,7 @@ import * as ledger from '@midnight-ntwrk/ledger-v7';
 import { Buffer } from 'buffer';
 import * as rx from 'rxjs';
 import { aFakeProvingProvider, initWalletWithSeed } from './utils.js';
-import { PreprodConfig } from './config.js';
+import { PreprodConfig, UndeployedConfig } from './config.js';
 import { WebSocket } from 'ws';
 
 globalThis.WebSocket = WebSocket as any;
@@ -14,17 +14,34 @@ globalThis.WebSocket = WebSocket as any;
  * 3. sponsor pays fees and submits.
  */
 
-const config = new PreprodConfig();
+// const config = new PreprodConfig();
+const config = new UndeployedConfig();
+
+/*
+    { seed: '0000000000000000000000000000000000000000000000000000000000000001' },
+    { seed: '0000000000000000000000000000000000000000000000000000000000000002' },
+    { seed: '0000000000000000000000000000000000000000000000000000000000000003' },
+    { seed: '0000000000000000000000000000000000000000000000000000000000000004' },
+*/
 
 console.log('[1/6] Initializing wallets...');
-const sponsor = await initWalletWithSeed(
-  Buffer.from('5b598b6c31c6463c319c0258437ae003612739d308fd6d82c500a477a7d903d8', 'hex'),
-  config,
-);
 const user = await initWalletWithSeed(
-  Buffer.from('fbeda6cd8f41ba22af745768cdf414f70b354323568d6118fe912a691a1f5cde', 'hex'),
+  // Buffer.from('5b598b6c31c6463c319c0258437ae003612739d308fd6d82c500a477a7d903d8', 'hex'),
+  Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex'),
   config,
 );
+const sponsor = await initWalletWithSeed(
+  // Buffer.from('fbeda6cd8f41ba22af745768cdf414f70b354323568d6118fe912a691a1f5cde', 'hex'),
+  Buffer.from('0000000000000000000000000000000000000000000000000000000000000002', 'hex'),
+  config,
+);
+
+const userAddress = user.unshieldedKeystore.getBech32Address().toString();
+console.log('  User address:', userAddress);
+const sponsorAddress = sponsor.unshieldedKeystore.getBech32Address().toString();
+console.log('  Sponsor address:', sponsorAddress);
+
+
 const nightAmountToSend = 10n;
 
 const initialSenderState = await rx.firstValueFrom(
@@ -85,7 +102,7 @@ const prepareTransactionToBalance = async () => {
   const intent = ledger.Intent.new(new Date(Date.now() + 30 * 60 * 1000));
   intent.fallibleUnshieldedOffer = unshieldedOffer;
   const unprovenTransaction = ledger.Transaction.fromParts(
-    'preprod',
+    config.networkId,
     undefined,
     undefined,
     intent,

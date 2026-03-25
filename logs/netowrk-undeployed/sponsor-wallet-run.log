@@ -1,0 +1,57 @@
+ npm run dev
+
+> sponsor-wallet-test@1.0.0 dev
+> node --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts
+
+(node:1041125) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1041125) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[1/6] Initializing wallets...
+  User address: mn_addr_undeployed1h3ssm5ru2t6eqy4g3she78zlxn96e36ms6pq996aduvmateh9p9sk96u7s
+  Sponsor address: mn_addr_undeployed1gkasr3z3vwyscy2jpp53nzr37v7n4r3lsfgj6v5g584dakjzt0xqun4d4r
+[2/6] Sponsor sending Night to user...
+[2/6] Waiting for user to receive Night...
+[2/6] User received Night: 250000000000030n
+[3/6] Preparing transaction to balance (DApp-style, fake prover)...
+[3/6] Transaction to balance prepared.
+[4/6] User balancing tx (shielded + unshielded, no dust)...
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+Wallet.Transacting: Failed to clone intent
+    at Object.catch (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/TransactionOps.js:45:35)
+    at Module.try_ (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/Either.js:81:33)
+    at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/TransactionOps.js:43:51 {
+  name: '(FiberFailure) Wallet.Transacting',
+  [Symbol(effect/Runtime/FiberFailure)]: Symbol(effect/Runtime/FiberFailure),
+  [Symbol(effect/Runtime/FiberFailure/Cause)]: {
+    _tag: 'Fail',
+    error: Wallet.Transacting: Failed to clone intent
+        at Object.catch (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/TransactionOps.js:45:35)
+        at Module.try_ (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/Either.js:81:33)
+        at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/TransactionOps.js:43:51
+        at Generator.next (<anonymous>)
+        at Module.gen (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/Either.js:484:22)
+        at Object.addSignature (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/TransactionOps.js:35:23)
+        at TransactingCapabilityImplementation.<anonymous> (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/Transacting.js:194:50)
+        at Generator.next (<anonymous>)
+        at Module.gen (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/Either.js:484:22)
+        at #signTransactionInternal (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/Transacting.js:186:23) {
+      _tag: 'Wallet.Transacting',
+      [cause]: Error: Unable to deserialize Intent. Error: expected header tag 'midnight:intent[v6](signature[v1],proof-preimage,embedded-fr[v1]):', got 'midnight:intent[v6](signature[v1],proof,embedded-fr[v1]):����(����'
+          at __wbg_Error_e17e777aac105295 (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/ledger-v7/midnight_ledger_wasm_bg.js:9218:17)
+          at wasm://wasm/027d23ae:wasm-function[14394]:0x6539e0
+          at wasm://wasm/027d23ae:wasm-function[9756]:0x54756c
+          at wasm://wasm/027d23ae:wasm-function[10219]:0x5774b9
+          at Intent.deserialize (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/ledger-v7/midnight_ledger_wasm_bg.js:4171:26)
+          at Object.try (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/TransactionOps.js:44:42)
+          at Module.try_ (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/Either.js:79:32)
+          at file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/@midnight-ntwrk/wallet-sdk-unshielded-wallet/dist/v1/TransactionOps.js:43:51
+          at Generator.next (<anonymous>)
+          at Module.gen (file:///home/syed/bcwt/midnight/sponsor-wallet-poc/sponsor-wallet-test/node_modules/effect/dist/esm/Either.js:484:22)
+    }
+  }
+}
