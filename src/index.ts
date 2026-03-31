@@ -1,12 +1,14 @@
 // Dust sponsorship - same flow as docs-snippets/dust-sponsorship.ts
-import * as ledger from '@midnight-ntwrk/ledger-v7';
+import * as ledger from '@midnight-ntwrk/ledger-v8';
+import { UnshieldedAddress } from '@midnight-ntwrk/wallet-sdk-address-format';
 import { Buffer } from 'buffer';
 import * as rx from 'rxjs';
 import { aFakeProvingProvider, initWalletWithSeed } from './utils.js';
 import { PreprodConfig, UndeployedConfig } from './config.js';
 import { WebSocket } from 'ws';
 
-globalThis.WebSocket = WebSocket as any;
+// Node 22+ has a built-in global WebSocket. Only polyfill when missing (older Node).
+globalThis.WebSocket ??= WebSocket as any;
 
 /*
  * Dust sponsorship: user wallet used for shielded/unshielded only; sponsor pays fees.
@@ -49,6 +51,19 @@ const initialSenderState = await rx.firstValueFrom(
 );
 const initialBalance = initialSenderState.unshielded.balances[ledger.nativeToken().raw] ?? 0n;
 
+// show balance of both wallets before starting
+console.log(
+  '  Sponsor initial balance:',
+  initialSenderState.unshielded.balances[ledger.nativeToken().raw] ?? 0n,
+);
+const initialReceiverState = await rx.firstValueFrom(
+  user.wallet.state().pipe(rx.filter((s) => s.isSynced)),
+);
+console.log(
+  '  User initial balance:',
+  initialReceiverState.unshielded.balances[ledger.nativeToken().raw] ?? 0n,
+);
+
 console.log('[2/6] Sponsor sending Night to user...');
 await sponsor.wallet
   .transferTransaction(
@@ -58,7 +73,9 @@ await sponsor.wallet
         outputs: [
           {
             amount: nightAmountToSend,
-            receiverAddress: user.unshieldedKeystore.getBech32Address().toString(),
+            receiverAddress: user.unshieldedKeystore
+              .getBech32Address()
+              .decode(UnshieldedAddress, config.networkId),
             type: ledger.nativeToken().raw,
           },
         ],
@@ -67,7 +84,7 @@ await sponsor.wallet
     {
       shieldedSecretKeys: sponsor.shieldedSecretKeys,
       dustSecretKey: sponsor.dustSecretKey,
-    } as any,
+    } ,
     { ttl: new Date(Date.now() + 30 * 60 * 1000) },
   )
   .then((recipe) => sponsor.wallet.signRecipe(recipe, (payload) => sponsor.unshieldedKeystore.signData(payload)))
@@ -118,11 +135,11 @@ console.log('[3/6] Transaction to balance prepared.');
 console.log('[4/6] User balancing tx (shielded + unshielded, no dust)...');
 const transactionWithoutFees = await user.wallet
   .balanceUnboundTransaction(
-    transactionToBalance as any,
+    transactionToBalance ,
     {
       shieldedSecretKeys: user.shieldedSecretKeys,
       dustSecretKey: user.dustSecretKey,
-    } as any,
+    } ,
     {
       ttl: new Date(Date.now() + 30 * 60 * 1000),
       tokenKindsToBalance: ['shielded', 'unshielded'],
@@ -139,7 +156,7 @@ await sponsor.wallet
     {
       shieldedSecretKeys: sponsor.shieldedSecretKeys,
       dustSecretKey: sponsor.dustSecretKey,
-    } as any,
+    },
     {
       ttl: new Date(Date.now() + 30 * 60 * 1000),
       tokenKindsToBalance: ['dust'],

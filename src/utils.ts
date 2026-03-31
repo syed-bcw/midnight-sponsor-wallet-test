@@ -1,4 +1,4 @@
-import * as ledger from '@midnight-ntwrk/ledger-v7';
+import * as ledger from '@midnight-ntwrk/ledger-v8';
 import { getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 import { WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
 import { DustWallet } from '@midnight-ntwrk/wallet-sdk-dust-wallet';
@@ -44,13 +44,13 @@ export async function initWalletWithSeed(
     indexerClientConnection: indexerConnection,
     provingServerUrl,
     relayURL,
-  } as any).startWithSecretKeys(shieldedSecretKeys as any);
+  } as any).startWithSecretKeys(shieldedSecretKeys);
 
   const unshieldedWallet = UnshieldedWallet({
     networkId: getNetworkId(),
     indexerClientConnection: indexerConnection,
     txHistoryStorage: new InMemoryTransactionHistoryStorage(),
-  } as any).startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore));
+  }).startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore));
 
   const dustWallet = DustWallet({
     networkId: getNetworkId(),
@@ -58,10 +58,22 @@ export async function initWalletWithSeed(
     indexerClientConnection: indexerConnection,
     provingServerUrl,
     relayURL,
-  } as any).startWithSecretKey(dustSecretKey as any, ledger.LedgerParameters.initialParameters().dust);
+  } as any).startWithSecretKey(dustSecretKey, ledger.LedgerParameters.initialParameters().dust);
 
-  const wallet = new WalletFacade(shieldedWallet, unshieldedWallet, dustWallet);
-  await wallet.start(shieldedSecretKeys as any, dustSecretKey as any);
+  const wallet = await WalletFacade.init({
+    configuration: {
+      networkId: getNetworkId(),
+      indexerClientConnection: indexerConnection,
+      provingServerUrl,
+      relayURL,
+      txHistoryStorage: new InMemoryTransactionHistoryStorage(),
+      costParameters: { additionalFeeOverhead: 300_000_000_000_000n, feeBlocksMargin: 5 },
+    },
+    shielded: async () => shieldedWallet,
+    unshielded: async () => unshieldedWallet,
+    dust: async () => dustWallet,
+  });
+  await wallet.start(shieldedSecretKeys, dustSecretKey);
   return { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore };
 }
 
